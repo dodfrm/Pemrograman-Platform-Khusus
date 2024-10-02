@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Praktikum 1 Pemrograman Platform Khusus</title>
+  <!-- bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    });
+  </script>
+</head>
+
+<body>
+  <!-- navbar -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid  ms-5">
+      <a class="navbar-brand" href="/">
+        <h4>STIS</h4>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link fs-5" aria-current="page" th:href="@{/}">Home</a>
+          <a class="nav-link active fs-5" th:href="@{/mahasiswa}">Mahasiswa</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- end of navbar -->
+  <div class="container mt-3">
+    <h2>Data Mahasiswa</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3 mx-3">
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary btn-md" data-bs-toggle="modal" data-bs-target="#modalTambah">
+        Tambah &nbsp;
+        <i class="fa fa-plus-circle btn-icon-append" aria-hidden="true"></i>
+      </button>
+
+      <!-- Search form -->
+      <form method="get" th:action="@{/mahasiswa}" class="d-flex">
+        <input type="text" name="keyword" class="form-control form-control-sm me-2" placeholder="Search"
+          th:value="${keyword}">
+        <button type="submit" class="btn btn-secondary btn-md" data-bs-toggle="tooltip" data-bs-placement="top"
+          title="Search">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
+      </form>
+    </div>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">NIM</th>
+          <th scope="col">Nama</th>
+          <th scope="col">Jurusan</th>
+          <th scope="col">Tanggal Lahir</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="mahasiswa, stat : ${mahasiswa}">
+          <th scope="row" th:text="${stat.index + 1}"></th>
+          <td th:text="${mahasiswa.nim}"></td>
+          <td th:text="${mahasiswa.nama}"></td>
+          <td th:text="${mahasiswa.jurusan}"></td>
+          <td th:text="${#dates.format(mahasiswa.tanggal_lahir, 'dd-MM-yyyy')}"></td>
+          <td>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"
+              onclick="editMahasiswa(this)"
+              th:attr="data-id=${mahasiswa.nim}, data-nama=${mahasiswa.nama}, data-jurusan=${mahasiswa.jurusan}, data-tanggal_lahir=${#dates.format(mahasiswa.tanggal_lahir, 'yyyy-MM-dd')}">
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"
+              onclick="confirmDelete(this)" th:attr="data-id=${mahasiswa.nim}">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+            <a th:href="@{/mahasiswa/detail(nim=${mahasiswa.nim})}" class="btn btn-success btn-sm"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="Detail Mahasiswa">
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Tambah-->
+  <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitleId">
+            Tambah Data Mahasiswa
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" th:action="@{/mahasiswa/save}" th:object="${mahasiswaDTO}">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nim" class="form-label">NIM</label>
+              <input type="text" name="nim" id="nim" class="form-control" placeholder="NIM" required
+                th:field="${mahasiswaDTO.nim}" />
+              <p th:if="${#fields.hasErrors('nim')}" class="text-danger" th:errors="*{nim}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="nama" class="form-label">Nama</label>
+              <input type="text" name="nama" id="nama" class="form-control" placeholder="Nama" required
+                th:field="${mahasiswaDTO.nama}" />
+              <p th:if="${#fields.hasErrors('nama')}" class="text-danger" th:errors="*{nama}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="jurusan" class="form-label">Jurusan</label>
+              <select class="form-select form-select-md" name="jurusan" id="jurusan" th:field="${mahasiswaDTO.jurusan}">
+                <option value="DIII STATISTIKA" th:selected="${mahasiswaDTO.jurusan == 'DIII STATISTIKA'}">DIII
+                  STATISTIKA
+                </option>
+                <option value="DIV STATISTIKA" th:selected="${mahasiswaDTO.jurusan == 'DIV STATISTIKA'}">DIV
+                  STATISTIKA
+                </option>
+                <option value="DIV KOMPUTASI STATISTIK"
+                  th:selected="${mahasiswaDTO.jurusan == 'DIV KOMPUTASI STATISTIK'}">DIV
+                  KOMPUTASI STATISTIK</option>
+              </select>
+              <!-- Perbaikan error untuk field Jurusan -->
+              <p th:if="${#fields.hasErrors('jurusan')}" class="text-danger" th:errors="*{jurusan}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+              <input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir"
+                placeholder="Tanggal Lahir" required th:field="${mahasiswaDTO.tanggal_lahir}" />
+              <!-- Perbaikan error untuk field Tanggal Lahir -->
+              <p th:if="${#fields.hasErrors('tanggal_lahir')}" class="text-danger" th:errors="*{tanggal_lahir}"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Tambah</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Edit-->
+  <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="modalEditTitleId"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEditTitleId">Edit Data Mahasiswa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="post" th:action="@{/mahasiswa/update}" th:object="${mahasiswaDTO}">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="editNim" class="form-label">NIM</label>
+              <input type="text" name="nim" id="editNim" class="form-control" placeholder="NIM" required
+                th:field="${mahasiswaDTO.nim}" readonly />
+              <p th:if="${#fields.hasErrors('nim')}" class="text-danger" th:errors="*{nim}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="editNama" class="form-label">Nama</label>
+              <input type="text" name="nama" id="editNama" class="form-control" placeholder="Nama" required
+                th:field="${mahasiswaDTO.nama}" />
+              <p th:if="${#fields.hasErrors('nama')}" class="text-danger" th:errors="*{nama}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="editJurusan" class="form-label">Jurusan</label>
+              <select class="form-select form-select-md" name="jurusan" id="editJurusan"
+                th:field="${mahasiswaDTO.jurusan}">
+                <option value="DIII STATISTIKA">DIII STATISTIKA</option>
+                <option value="DIV STATISTIKA">DIV STATISTIKA</option>
+                <option value="DIV KOMPUTASI STATISTIK">DIV KOMPUTASI STATISTIK</option>
+              </select>
+              <p th:if="${#fields.hasErrors('jurusan')}" class="text-danger" th:errors="*{jurusan}"></p>
+            </div>
+            <div class="mb-3">
+              <label for="editTanggalLahir" class="form-label">Tanggal Lahir</label>
+              <input type="date" class="form-control" name="tanggal_lahir" id="editTanggalLahir"
+                placeholder="Tanggal Lahir" required th:field="${mahasiswaDTO.tanggal_lahir}" />
+              <p th:if="${#fields.hasErrors('tanggal_lahir')}" class="text-danger" th:errors="*{tanggal_lahir}"></p>
+            </div>
+          </div>
+          <div th:if="${#fields.hasErrors()}" class="d-none" th:attr="data-validation-errors=${#fields.errors('*')}">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Delete -->
+  <form id="deleteForm" method="post" th:action="@{/mahasiswa/delete}" style="display: none;">
+    <input type="hidden" name="nim" id="deleteNim">
+  </form>
+
+  <!-- Pesan Succes dan Error -->
+  <div th:if="${successMessage}" class="d-none" th:attr="data-success=${successMessage}"></div>
+  <div th:if="${errorMessage}" class="d-none" th:attr="data-error=${errorMessage}"></div>
+
+  <!-- script -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <!-- Delete -->
+  <script>
+    // Delete
+    function confirmDelete(button) {
+      const mahasiswaId = $(button).data('id');
+      Swal.fire({
+        title: 'Delete?',
+        text: "Apakah Anda Yakin Ingin Menghapus Data Ini?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Iya, Hapus!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Set the NIM value in the hidden form and submit it
+          $('#deleteNim').val(mahasiswaId);
+          $('#deleteForm').submit();
+        }
+      });
+    }
+
+    //Edit
+    function editMahasiswa(button) {
+      // Ambil data dari tombol
+      const nim = $(button).data('id');
+      const nama = $(button).data('nama');
+      const jurusan = $(button).data('jurusan');
+      const tanggal_lahir = $(button).data('tanggal_lahir');
+
+      // Masukkan data ke dalam modal edit
+      $('#editNim').val(nim);
+      $('#editNama').val(nama);
+      $('#editJurusan').val(jurusan);
+      $('#editTanggalLahir').val(tanggal_lahir);
+
+      // Tampilkan modal edit
+      $('#modalEdit').modal('show');
+    }
+  </script>
+
+  <script>
+    const successMessage = document.querySelector('[data-success]') ?
+      document.querySelector('[data-success]').getAttribute('data-success') : '';
+    const errorMessage = document.querySelector('[data-error]') ?
+      document.querySelector('[data-error]').getAttribute('data-error') : '';
+    const validationErrors = document.querySelector('[data-validation-errors]') ?
+      document.querySelector('[data-validation-errors]').getAttribute('data-validation-errors') : '';
+
+    // Check for success message
+    if (successMessage) {
+      Swal.fire({
+        title: 'Success!',
+        text: successMessage,
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      });
+    }
+
+    // Check for general error message
+    if (errorMessage) {
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      });
+    }
+
+    // Check for validation errors
+    if (validationErrors) {
+      Swal.fire({
+        title: 'Validation Error!',
+        html: `<ul>${validationErrors.split(",").map(error => `<li>${error}</li>`).join('')}</ul>`,
+        icon: 'warning',
+        confirmButtonText: 'Ok'
+      });
+    }
+  </script>
+
+
+</body>
+
+</html>
