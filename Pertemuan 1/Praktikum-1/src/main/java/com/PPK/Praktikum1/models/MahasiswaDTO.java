@@ -4,8 +4,8 @@ import jakarta.validation.constraints.*;
 
 public class MahasiswaDTO {
     @NotEmpty(message = "NIM tidak boleh kosong")
-    @Size(min = 9, message ="NIM harus 9 karakter")
-    @Size(max = 9, message = "NIM tidak boleh lebih dari 9 karakter")
+    @Size(min = 9, max = 9, message = "NIM harus terdiri dari 9 karakter")
+    @Pattern(regexp = "\\d{9}", message = "NIM hanya boleh terdiri dari angka")
     private String nim;
 
     @NotEmpty(message = "Nama tidak boleh kosong")

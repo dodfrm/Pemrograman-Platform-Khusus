@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import com.PPK.Praktikum1.models.Mahasiswa;
 
 public interface MahasiswaRepository extends JpaRepository <Mahasiswa, String>{
-     @Query("SELECT m FROM Mahasiswa m WHERE m.nim LIKE %:keyword% OR m.nama LIKE %:keyword%")
+    @Query("SELECT m FROM Mahasiswa m WHERE m.nim LIKE %:keyword% OR m.nama LIKE %:keyword%")
     public List<Mahasiswa> searchByNimOrNama(@Param("keyword") String keyword);
 }

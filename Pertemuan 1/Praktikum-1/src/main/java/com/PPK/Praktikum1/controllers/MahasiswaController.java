@@ -1,24 +1,22 @@
 package com.PPK.Praktikum1.controllers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.PPK.Praktikum1.models.Mahasiswa;
 import com.PPK.Praktikum1.models.MahasiswaDTO;
 import com.PPK.Praktikum1.services.MahasiswaRepository;
 
 import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/mahasiswa")
@@ -27,28 +25,27 @@ public class MahasiswaController {
     @Autowired
     MahasiswaRepository mahasiswaRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(MahasiswaController.class);
+    // menampilkan data mahasiswa
     @GetMapping({"", "/"})
     public String showMahasiswaList(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-    List<Mahasiswa> mahasiswa;
-    
-    if (keyword != null && !keyword.isEmpty()) {
-        // Search by NIM or Nama
-        mahasiswa = mahasiswaRepository.searchByNimOrNama(keyword);
-    } else {
-        // Jika tidak ada keyword tampilkan seluruh mahasiswa
-        mahasiswa = mahasiswaRepository.findAll();
+        List<Mahasiswa> mahasiswa;
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            mahasiswa = mahasiswaRepository.searchByNimOrNama(keyword);
+        } else {
+            mahasiswa = mahasiswaRepository.findAll();
+        }
+        
+        model.addAttribute("mahasiswa", mahasiswa);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("mahasiswaDTO", new MahasiswaDTO());
+        
+        return "mahasiswa";
     }
-    
-    model.addAttribute("mahasiswa", mahasiswa);
-    model.addAttribute("keyword", keyword);
-    MahasiswaDTO mahasiswaDTO = new MahasiswaDTO();
-    model.addAttribute("mahasiswaDTO", mahasiswaDTO);
-    
-    return "mahasiswa";
-}
 
-    // Menambah Data Mahasiswa
-   @PostMapping("/save")
+    //menyimpan data mahasiswa
+    @PostMapping("/save")
     public String saveMahasiswa(
             @Valid @ModelAttribute MahasiswaDTO mahasiswaDTO,
             BindingResult bindingResult,
@@ -62,35 +59,44 @@ public class MahasiswaController {
             return "mahasiswa";
         }
 
-        // Simpan mahasiswa jika tidak ada error
-        Mahasiswa mahasiswa = new Mahasiswa();
-        mahasiswa.setNim(mahasiswaDTO.getNim());
-        mahasiswa.setNama(mahasiswaDTO.getNama());
-        mahasiswa.setJurusan(mahasiswaDTO.getJurusan());
-        mahasiswa.setTanggal_lahir(mahasiswaDTO.getTanggal_lahir());
+        try {
+            Mahasiswa mahasiswa = new Mahasiswa();
+            mahasiswa.setNim(mahasiswaDTO.getNim());
+            mahasiswa.setNama(mahasiswaDTO.getNama());
+            mahasiswa.setJurusan(mahasiswaDTO.getJurusan());
+            mahasiswa.setTanggal_lahir(mahasiswaDTO.getTanggal_lahir());
 
-        mahasiswaRepository.save(mahasiswa);
+            mahasiswaRepository.save(mahasiswa);
+            redirectAttributes.addFlashAttribute("successMessage", "Data mahasiswa berhasil disimpan.");
+        } catch (Exception e) {
+            logger.error("Error saat menyimpan mahasiswa", e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan saat menyimpan data.");
+        }
 
-        // Tambahkan pesan sukses ke RedirectAttributes
-        redirectAttributes.addFlashAttribute("successMessage", "Data mahasiswa berhasil disimpan.");
-        return "redirect:/mahasiswa"; // Redirect setelah data berhasil disimpan
+        return "redirect:/mahasiswa";
     }
 
-    // Menghapus data mahasiswa
+    //menghapus data mahasiswa
     @PostMapping("/delete")
     public String deleteMahasiswa(@RequestParam("nim") String nim, RedirectAttributes redirectAttributes) {
         try {
-            Mahasiswa mahasiswa = mahasiswaRepository.findById(nim).get();
+            Mahasiswa mahasiswa = mahasiswaRepository.findById(nim).orElseThrow(() ->
+                new NoSuchElementException("Mahasiswa dengan NIM " + nim + " tidak ditemukan.")
+            );
             mahasiswaRepository.delete(mahasiswa);
             redirectAttributes.addFlashAttribute("successMessage", "Data mahasiswa berhasil dihapus.");
+        } catch (NoSuchElementException e) {
+            logger.error("Mahasiswa dengan NIM {} tidak ditemukan untuk dihapus.", nim);
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error saat menghapus mahasiswa", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan saat menghapus data.");
         }
+
         return "redirect:/mahasiswa"; 
     }
 
-    // Memperbaharui data mahasiswa
+    //Update data mahasiswa
     @PostMapping("/update")
     public String updateMahasiswa(
             @Valid @ModelAttribute("mahasiswaDTO") MahasiswaDTO mahasiswaDTO, 
@@ -103,22 +109,28 @@ public class MahasiswaController {
             model.addAttribute("mahasiswa", mahasiswaList);
             model.addAttribute("mahasiswaDTO", mahasiswaDTO);
             model.addAttribute("errorMessage", "Validasi gagal, mohon periksa kembali input Anda.");
-            return "mahasiswa"; // Kembali ke halaman jika ada error
+            return "mahasiswa";
         }
 
-        // Simpan perubahan jika tidak ada error
-        Mahasiswa mahasiswa = new Mahasiswa();
-        mahasiswa.setNim(mahasiswaDTO.getNim());
-        mahasiswa.setNama(mahasiswaDTO.getNama());
-        mahasiswa.setJurusan(mahasiswaDTO.getJurusan());
-        mahasiswa.setTanggal_lahir(mahasiswaDTO.getTanggal_lahir());
+        try {
+            Mahasiswa mahasiswa = mahasiswaRepository.findById(mahasiswaDTO.getNim())
+                    .orElseThrow(() -> new NoSuchElementException("Mahasiswa dengan NIM " + mahasiswaDTO.getNim() + " tidak ditemukan."));
+            mahasiswa.setNama(mahasiswaDTO.getNama());
+            mahasiswa.setJurusan(mahasiswaDTO.getJurusan());
+            mahasiswa.setTanggal_lahir(mahasiswaDTO.getTanggal_lahir());
 
-        mahasiswaRepository.save(mahasiswa);
+            mahasiswaRepository.save(mahasiswa);
+            redirectAttributes.addFlashAttribute("successMessage", "Data mahasiswa berhasil diperbarui.");
+        } catch (NoSuchElementException e) {
+            logger.error("Mahasiswa dengan NIM {} tidak ditemukan untuk diperbarui.", mahasiswaDTO.getNim());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error saat memperbarui mahasiswa", e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan saat memperbarui data.");
+        }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Data mahasiswa berhasil diperbarui.");
         return "redirect:/mahasiswa";
     }
-
     // Menampilkan detail mahasiswa
     @RequestMapping("/detail")
     public String showDetailMahasiswa(@RequestParam("nim") String nim, Model model) {
@@ -131,4 +143,11 @@ public class MahasiswaController {
         }
     }
 
+    //Exception Handler
+    @ExceptionHandler(Exception.class)
+    public String handleException(Exception ex, RedirectAttributes redirectAttributes) {
+        logger.error("Exception caught: ", ex);
+        redirectAttributes.addFlashAttribute("errorMessage", "Terjadi kesalahan: " + ex.getMessage());
+        return "redirect:/mahasiswa";
+    }
 }
