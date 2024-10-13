@@ -1,18 +1,10 @@
 package com.polstat.perpustakaan;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ws.server.endpoint.annotation.Endpoint;
-import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
-import org.springframework.ws.server.endpoint.annotation.RequestPayload;
-import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-
+import org.springframework.ws.server.endpoint.annotation.*;
 import com.polstat.perpustakaan.repository.BookRepository;
 import com.polstat.perpustakaan.entity.Book;
-import com.polstat.perpustakaan.gen.AddBookRequest;
-import com.polstat.perpustakaan.gen.AddBookResponse;
-import com.polstat.perpustakaan.gen.BookType;
-import com.polstat.perpustakaan.gen.GetAllBookRequest;
-import com.polstat.perpustakaan.gen.GetAllBookResponse;
+import com.polstat.perpustakaan.gen.*;
 
 import java.util.List;
 
