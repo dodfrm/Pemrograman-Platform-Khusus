@@ -1,49 +1,34 @@
 
 ## Contoh Request
 
-url = http://localhost:8080/jsonrpc
+url = http://localhost:8080/bookLoan
 
-### 1. Menambahkan Buku
+### 1. Menambahkan Data Pinjaman Buku
 
-Gunakan request berikut untuk menambahkan buku:
+Method : POST
+
+Gunakan request body berikut untuk menambahkan data pinjaman buku:
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "createBook",
-  "params":
-    {
-      "title":"Belajar Web Service",
-      "author":"Budi",
-      "description":"Ini adalah buku web service terbaik"
-    },
-  "id": "1"
+  "member": "members/1",
+  "book": "books/2",
 }
 ```
 ### 2. Mendapatkan Semua Buku
 
-Gunakan request berikut untuk mendapatkan semua buku:
+Method : GET
+
+### 3. Mengembalikan Buku
+
+url = http://localhost:8080/bookLoan/{loan_id} 
+
+Method : PATCH
+
+Gunakan request body berikut untuk mengembalikan buku:
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "getBooks",
-  "params": {},
-  "id": "2"
-}
-```
-
-### 3. Mencari Buku
-
-Gunakan request berikut untuk mencari buku berdasarkan author dan judul buku:
-
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "searchBooks",
-  "params": {
-    "keyword": "harry"  
-  },
-  "id": "2"
+  "loanStatus": "sudah dikembalikan"
 }
 ```
