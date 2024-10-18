@@ -15,9 +15,21 @@ Gunakan request body berikut untuk menambahkan data pinjaman buku:
   "book": "books/2",
 }
 ```
-### 2. Mendapatkan Semua Buku
+### 2. Mendapatkan Data Peminjaman Buku
 
 Method : GET
+
+#### a. Semua Peminjaman
+
+url = http://localhost:8080/bookLoan
+
+#### b. Peminjaman Berdasarkan Member
+
+url = http://localhost:8080/bookLoan/search/findByMemberId?member_id={memberId}
+
+#### c. Peminjaman Berdasarkan Buku
+
+url = http://localhost:8080/bookLoan/search/findByBookId?book_id={bookId}
 
 ### 3. Mengembalikan Buku
 
