@@ -93,7 +93,7 @@ public class BookLoanEventHandler {
     private long calculateLateDays(Date borrowDate, Date returnDate) {
         long diffInMillies = returnDate.getTime() - borrowDate.getTime();
         long diffInDays = diffInMillies / (1000 * 60 * 60 * 24);
-        int maxLoanDays = 1; // Jumlah hari maksimal peminjaman (misalnya 14 hari)
+        int maxLoanDays = 7; // Jumlah hari maksimal peminjaman (misalnya 7 hari)
         return Math.max(0, diffInDays - maxLoanDays);
     }
 }
