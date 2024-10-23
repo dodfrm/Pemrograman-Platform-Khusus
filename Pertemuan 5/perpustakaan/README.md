@@ -19,7 +19,7 @@ mutation Book {
 }
 ```
 
-### 2. Menampilkan semua koleksi buku
+### 2. Menampilkan Semua Koleksi Buku
 
 ```graphql
 query {
@@ -32,7 +32,7 @@ query {
 }
 ```
 
-### 3. Menampilkan koleksi buku berdasarkan ID
+### 3. Menampilkan Koleksi Buku Berdasarkan ID
 
 ```graphql
 query {
@@ -43,7 +43,7 @@ query {
 }
 ```
 
-### 4. Mengupdate buku
+### 4. Mengupdate Data Buku
 
 ```graphql
 mutation Book {
@@ -57,6 +57,105 @@ mutation Book {
     title
     author
     description
+  }
+}
+```
+
+### 5. Menghapus Buku
+
+```graphql
+mutation Book {
+  deleteBook(id: "2") {
+    id
+  }
+}
+```
+
+### 6. Menambahkan Member
+
+```graphql
+mutation Member {
+  createMember(
+    memberID: "333"
+    name: "Wilfa"
+    address: "Jalan Asem"
+    phoneNumber: "08587234092"
+  ) {
+    id
+    memberID
+    name
+    address
+    phoneNumber
+  }
+}
+```
+
+### 7. Menampilkan Semua Member
+
+```graphql
+query Member {
+  members {
+    id
+    memberID
+    name
+    address
+    phoneNumber
+  }
+}
+```
+
+### 8. Menampilkan Member Berdasarkan ID
+
+```graphql
+query {
+  memberById(id: "2") {
+    memberID
+    name
+    address
+    phoneNumber
+  }
+}
+```
+
+### 9. Mengubah Data Member
+
+```graphql
+mutation Member {
+  updateMember(
+    id: "1"
+    memberID: "111"
+    name: "Adit"
+    address: "Belakang Kampus"
+    phoneNumber: "08187342567"
+  ) {
+    id
+    memberID
+    name
+    address
+    phoneNumber
+  }
+}
+```
+
+### 10. Menghapus Member
+
+```graphql
+mutation Member {
+  deleteMember(id: "2") {
+    id
+  }
+}
+```
+
+### 10. Menampilkan Member Berdasarkan ID
+
+```graphql
+query {
+  memberById(id: "1") {
+    memberID
+    name
+    address
+    phoneNumber
   }
 }
 ```
