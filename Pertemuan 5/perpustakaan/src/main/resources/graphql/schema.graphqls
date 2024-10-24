@@ -18,6 +18,7 @@ type Query {
   bookById(id: ID): Book
   members: [Member]
   memberById(id: ID): Member
+  findMemberByName(name: String!): [Member]
 }
 type Mutation {
   createBook(title: String!, description: String, author: String!): Book!

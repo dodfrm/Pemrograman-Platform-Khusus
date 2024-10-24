@@ -9,4 +9,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByName(@Param("name") String name);
 
     List<Member> findByMemberID(@Param("member_id") String memberID);
+
+    List<Member> findByNameContainingIgnoreCase(String name);
 }

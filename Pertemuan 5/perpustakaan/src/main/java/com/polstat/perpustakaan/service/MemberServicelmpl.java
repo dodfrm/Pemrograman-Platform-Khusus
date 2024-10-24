@@ -47,4 +47,12 @@ public class MemberServicelmpl implements MemberService {
     public void deleteMember(MemberDto memberDto) {
         memberRepository.delete(MemberMapper.mapToMember(memberDto));
     }
+
+    @Override
+    public List<MemberDto> findMemberByName(String name) {
+        List<Member> members = memberRepository.findByNameContainingIgnoreCase(name);
+        return members.stream()
+                .map(MemberMapper::mapToMemberDto)
+                .collect(Collectors.toList());
+    }
 }

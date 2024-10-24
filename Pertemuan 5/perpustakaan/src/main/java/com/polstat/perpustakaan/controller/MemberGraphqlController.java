@@ -26,6 +26,11 @@ public class MemberGraphqlController {
         return memberService.getMember(id);
     }
 
+    @QueryMapping
+    public List<MemberDto> findMemberByName(@Argument String name) {
+        return memberService.findMemberByName(name);
+    }
+
     @MutationMapping
     public MemberDto createMember(@Argument String memberID, @Argument String name, @Argument String address,
             @Argument String phoneNumber) {

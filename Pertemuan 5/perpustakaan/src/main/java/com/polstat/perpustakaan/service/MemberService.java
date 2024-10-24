@@ -14,4 +14,6 @@ public interface MemberService {
     public List<MemberDto> getMembers();
 
     public MemberDto getMember(Long id);
+
+    public List<MemberDto> findMemberByName(String name);
 }
